@@ -57,7 +57,7 @@ get_project_info() {
     echo ""
 
     # Get project name
-    read -p "Enter project name (e.g., raw-materials, my-app): " PROJECT_NAME
+    read -p "Enter project name (e.g., my-app, api-service): " PROJECT_NAME
 
     if [[ -z "$PROJECT_NAME" ]]; then
         log_error "Project name is required"

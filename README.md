@@ -74,7 +74,7 @@ sudo bash setup-project.sh
 ```
 
 The script will ask you for:
-- Project name (e.g., "raw-materials", "my-app")
+- Project name (e.g., "my-app", "api-service")
 - Username (optional, defaults to `<project-name>-user`)
 - Whether you need SSH keys (only required for private repos or pushing changes)
 - Repository type (public or private)
@@ -109,13 +109,13 @@ You can run `setup-project.sh` multiple times for different projects:
 ```bash
 # First project
 sudo bash setup-project.sh
-# Enter: raw-materials
-# Creates: /opt/raw-materials with user raw-materials-user
+# Enter: my-app
+# Creates: /opt/my-app with user my-app-user
 
 # Second project
 sudo bash setup-project.sh
-# Enter: my-dashboard
-# Creates: /opt/my-dashboard with user my-dashboard-user
+# Enter: dashboard
+# Creates: /opt/dashboard with user dashboard-user
 
 # Third project
 sudo bash setup-project.sh
