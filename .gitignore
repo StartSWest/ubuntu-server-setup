@@ -1,0 +1,27 @@
+# Environment files (should never be committed)
+.env*
+*.env
+
+# Backup files
+*.backup
+*.bak
+backups/
+
+# Log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
