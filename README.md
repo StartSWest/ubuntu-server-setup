@@ -26,11 +26,13 @@ This repository contains two scripts that work together to set up an Ubuntu serv
 
 ### Project Setup (setup-project.sh)
 - Project-specific user creation
-- SSH key generation for GitHub/GitLab access
-- Interactive GitHub key configuration
-- Repository cloning (SSH or HTTPS)
+- **Optional** SSH key generation (only if needed)
+- Support for both **public** (HTTPS) and **private** (SSH) repositories
+- Interactive GitHub key configuration with pause-and-wait
+- Repository cloning with multiple options
 - Project directory setup (/opt/project-name)
 - Environment file initialization
+- Fully generic - no hardcoded values
 
 ## Quick Start
 
@@ -155,9 +157,9 @@ Each project gets:
 
 ### System Optimization
 - Swap file (2GB by default)
-- Increased file descriptor limits
-- Optimized network settings
-- Log rotation for application logs
+- Optimized network settings (TCP, connection limits)
+- Log rotation for Docker containers
+- Per-project limits (configured during project setup)
 
 ## Directory Structure
 
@@ -282,6 +284,45 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 # Auto-renewal is configured automatically
 ```
 
+## Key Features
+
+### ✅ Security First
+- No hardcoded sensitive information
+- Password authentication disabled
+- Root login disabled
+- Firewall configured by default
+- Fail2ban intrusion prevention
+- Automatic security updates
+
+### ✅ Production Ready
+- Tested on Ubuntu 22.04 LTS
+- Docker and Docker Compose included
+- System optimizations applied
+- Monitoring tools available
+- Log rotation configured
+
+### ✅ Multi-Project Support
+- Run on a single server
+- Isolated users per project
+- Separate SSH keys per project
+- Independent deployment per project
+
+### ✅ Flexible Repository Access
+- Public repositories (HTTPS, no auth needed)
+- Private repositories (SSH keys generated automatically)
+- Optional SSH setup (skip if not needed)
+
+## Privacy & Security
+
+**This repository contains ZERO sensitive information:**
+- ❌ No IP addresses
+- ❌ No domain names
+- ❌ No email addresses
+- ❌ No usernames
+- ❌ No project-specific data
+
+All values are prompted during script execution or use dynamic variables.
+
 ## Contributing
 
 Feel free to submit issues or pull requests to improve these scripts.
@@ -292,7 +333,7 @@ MIT License - feel free to use for your own projects.
 
 ## Author
 
-Created by Ivan Carmenates for deploying production projects on Ubuntu servers.
+Created for deploying production projects on Ubuntu servers.
 
 ## Support
 
