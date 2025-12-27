@@ -17,7 +17,8 @@ This repository contains two scripts that work together to set up an Ubuntu serv
 - Nginx installation (system-level)
 - UFW firewall configuration (ports 22, 80, 443)
 - Fail2ban for intrusion prevention
-- SSH hardening (password auth disabled)
+- **Interactive SSH key setup for root access**
+- **Optional SSH hardening with proper warnings** (password auth disabled)
 - Swap file creation
 - System limits optimization
 - Log rotation configuration
@@ -55,8 +56,11 @@ This will:
 - Configure the server with security best practices
 - Install Docker, Nginx, and essential tools
 - Set up firewall and fail2ban
-- Harden SSH configuration
+- **Guide you through SSH key setup for root access**
+- **Ask before hardening SSH (prevents lockout)**
 - Configure system limits and monitoring
+
+**Important**: The script will ask you to set up SSH keys BEFORE disabling password authentication. Make sure to test SSH key login in a separate terminal before proceeding with SSH hardening.
 
 ### Step 2: Project Setup (Run Per Project)
 
