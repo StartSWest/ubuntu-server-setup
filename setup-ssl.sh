@@ -75,19 +75,48 @@ check_dns() {
 
     log_info "Checking DNS configuration for $domain..."
 
-    local resolved_ip=$(dig +short "$domain" @8.8.8.8 | tail -n1)
+    # Get both IPv4 (A) and IPv6 (AAAA) records
+    local resolved_ipv4=$(dig +short A "$domain" @8.8.8.8 | grep -v '\.$' | head -n1)
+    local resolved_ipv6=$(dig +short AAAA "$domain" @8.8.8.8 | grep -v '\.$' | head -n1)
 
-    if [[ -z "$resolved_ip" ]]; then
+    # Get server's IPv4 and IPv6 addresses
+    local server_ipv4=$(curl -4 -s ifconfig.me 2>/dev/null || echo "")
+    local server_ipv6=$(curl -6 -s ifconfig.me 2>/dev/null || echo "")
+
+    log_info "Domain DNS records:"
+    [[ -n "$resolved_ipv4" ]] && echo "  IPv4 (A):    $resolved_ipv4" || echo "  IPv4 (A):    Not set"
+    [[ -n "$resolved_ipv6" ]] && echo "  IPv6 (AAAA): $resolved_ipv6" || echo "  IPv6 (AAAA): Not set"
+    echo ""
+    log_info "Server IP addresses:"
+    [[ -n "$server_ipv4" ]] && echo "  IPv4: $server_ipv4" || echo "  IPv4: Not available"
+    [[ -n "$server_ipv6" ]] && echo "  IPv6: $server_ipv6" || echo "  IPv6: Not available"
+    echo ""
+
+    # Check if domain resolves to at least one IP
+    if [[ -z "$resolved_ipv4" && -z "$resolved_ipv6" ]]; then
         log_error "Domain $domain does not resolve to any IP address"
         return 1
     fi
 
-    if [[ "$resolved_ip" != "$server_ip" ]]; then
-        log_error "Domain $domain points to $resolved_ip, but this server is $server_ip"
+    # Check if domain points to this server (IPv4 or IPv6)
+    local match_found=false
+
+    if [[ -n "$resolved_ipv4" && -n "$server_ipv4" && "$resolved_ipv4" == "$server_ipv4" ]]; then
+        log_success "DNS correctly points to this server via IPv4 ($resolved_ipv4)"
+        match_found=true
+    fi
+
+    if [[ -n "$resolved_ipv6" && -n "$server_ipv6" && "$resolved_ipv6" == "$server_ipv6" ]]; then
+        log_success "DNS correctly points to this server via IPv6 ($resolved_ipv6)"
+        match_found=true
+    fi
+
+    if [[ "$match_found" == "false" ]]; then
+        log_error "Domain does not point to this server"
+        log_warning "Update your DNS records to point to one of this server's IP addresses"
         return 1
     fi
 
-    log_success "DNS correctly points to this server ($server_ip)"
     return 0
 }
 
@@ -356,8 +385,9 @@ main() {
         fi
     fi
 
-    # Get server IP
-    SERVER_IP=$(curl -s ifconfig.me || curl -s icanhazip.com || echo "unknown")
+    # Get server IPs
+    SERVER_IPV4=$(curl -4 -s ifconfig.me 2>/dev/null || echo "")
+    SERVER_IPV6=$(curl -6 -s ifconfig.me 2>/dev/null || echo "")
 
     echo ""
     log_info "Configuration:"
@@ -368,14 +398,24 @@ main() {
     echo "  Project: $PROJECT_DIR"
     echo "  User: $PROJECT_USER"
     echo "  Email: $EMAIL"
-    echo "  Server IP: $SERVER_IP"
+    echo "  Server IPv4: ${SERVER_IPV4:-Not available}"
+    echo "  Server IPv6: ${SERVER_IPV6:-Not available}"
     echo ""
 
     # Check DNS
     print_section "Checking DNS Configuration"
-    if ! check_dns "$DOMAIN" "$SERVER_IP"; then
-        log_error "DNS check failed. Please configure your domain's A record to point to $SERVER_IP"
-        log_info "Wait 5-10 minutes after DNS changes, then try again"
+    if ! check_dns "$DOMAIN" ""; then
+        log_error "DNS check failed."
+        echo ""
+        log_info "To fix this issue:"
+        echo "  1. Go to your domain registrar's DNS settings"
+        echo "  2. Add/Update A record (IPv4):"
+        [[ -n "$SERVER_IPV4" ]] && echo "     Type: A, Name: @, Value: $SERVER_IPV4"
+        echo "  3. Optionally add AAAA record (IPv6):"
+        [[ -n "$SERVER_IPV6" ]] && echo "     Type: AAAA, Name: @, Value: $SERVER_IPV6"
+        echo "  4. Wait 5-10 minutes for DNS propagation"
+        echo "  5. Run this script again"
+        echo ""
         exit 1
     fi
 
