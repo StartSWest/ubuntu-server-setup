@@ -448,20 +448,42 @@ main() {
     # Obtain certificate
     print_section "Obtaining SSL Certificate"
     if ! obtain_certificate "$DOMAIN" "$EMAIL" "$INCLUDE_WWW"; then
+        log_error "Certificate issuance failed"
+        log_info "Restoring services without SSL configuration"
         start_services "$PROJECT_DIR"
+        echo ""
+        log_warning "Common reasons for failure:"
+        echo "  • Port 80 is blocked by firewall"
+        echo "  • Another service is using port 80"
+        echo "  • Rate limit reached (5 failures per hour)"
+        echo "  • Domain not yet propagated to DNS servers"
+        echo ""
+        log_info "Check certbot logs:"
+        echo "  sudo tail -50 /var/log/letsencrypt/letsencrypt.log"
+        echo ""
         exit 1
     fi
 
     # Copy certificates
     print_section "Installing Certificates"
-    copy_certificates "$DOMAIN" "$PROJECT_DIR" "$PROJECT_USER"
+    if ! copy_certificates "$DOMAIN" "$PROJECT_DIR" "$PROJECT_USER"; then
+        log_error "Failed to copy certificates"
+        start_services "$PROJECT_DIR"
+        exit 1
+    fi
 
-    # Update nginx config
+    # Update nginx config (only after certificates are successfully copied)
     print_section "Configuring HTTPS"
-    update_nginx_config "$PROJECT_DIR" "$DOMAIN"
+    if ! update_nginx_config "$PROJECT_DIR" "$DOMAIN"; then
+        log_warning "Failed to update nginx config automatically"
+        log_info "You may need to update it manually"
+    fi
 
     # Update env file
-    update_env_file "$PROJECT_DIR" "$DOMAIN"
+    if ! update_env_file "$PROJECT_DIR" "$DOMAIN"; then
+        log_warning "Failed to update .env.production automatically"
+        log_info "You may need to update it manually"
+    fi
 
     # Setup auto-renewal
     print_section "Setting Up Auto-Renewal"
