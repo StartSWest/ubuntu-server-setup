@@ -4,10 +4,11 @@ Production-ready Ubuntu server setup scripts for deploying multiple projects on 
 
 ## Overview
 
-This repository contains two scripts that work together to set up an Ubuntu server for production deployments:
+This repository contains scripts that work together to set up an Ubuntu server for production deployments:
 
 1. **setup-server.sh** - One-time server configuration (system-level)
 2. **setup-project.sh** - Per-project setup (can be run multiple times for different projects)
+3. **setup-ssl.sh** - SSL/HTTPS setup with Let's Encrypt (optional, run after project deployment)
 
 ## Features
 
@@ -34,6 +35,15 @@ This repository contains two scripts that work together to set up an Ubuntu serv
 - Project directory setup (/opt/project-name)
 - Environment file initialization
 - Fully generic - no hardcoded values
+
+### SSL Setup (setup-ssl.sh)
+- **Generic** SSL/HTTPS setup for any project
+- Let's Encrypt certificate installation (FREE)
+- Automatic DNS validation
+- Nginx configuration for HTTPS
+- HTTP to HTTPS redirect
+- Auto-renewal setup (certificates valid for 90 days)
+- Updates project .env files for HTTPS
 
 ## Quick Start
 
@@ -105,6 +115,41 @@ cd /opt/<project-name>
 # Run your deployment script
 ./scripts/deploy.sh
 ```
+
+### Step 4: SSL/HTTPS Setup (Optional but Recommended)
+
+After your project is deployed and accessible via HTTP, set up SSL for HTTPS:
+
+```bash
+# Download the SSL setup script
+wget https://raw.githubusercontent.com/StartSWest/ubuntu-server-setup/main/setup-ssl.sh
+
+# Make it executable
+chmod +x setup-ssl.sh
+
+# Run as root
+sudo bash setup-ssl.sh
+```
+
+The script will ask for:
+- Domain name (e.g., `example.com`)
+- Project directory (e.g., `/opt/my-app`)
+- Project user (e.g., `my-app-user`)
+- Email for certificate notifications
+- Whether to include www subdomain
+
+It will then:
+1. Verify DNS is pointing to your server
+2. Install Certbot (if not already installed)
+3. Obtain FREE SSL certificate from Let's Encrypt
+4. Update nginx configuration for HTTPS
+5. Update `.env.production` with HTTPS URL
+6. Set up automatic certificate renewal
+
+**Requirements before running:**
+- Domain name must point to your server's IP (DNS A record)
+- Wait 5-10 minutes after DNS changes for propagation
+- Project must be deployed and running
 
 ## Multiple Projects on One Server
 
