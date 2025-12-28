@@ -120,6 +120,29 @@ create_app_user() {
         log_success "User added to docker group"
     fi
 
+    # Configure passwordless sudo for deployment commands
+    log_info "Configuring passwordless sudo for deployment..."
+
+    cat > /etc/sudoers.d/${APP_USER}-deploy <<EOF
+# Allow ${APP_USER} to run deployment commands without password
+${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/chown -R 1001\:1001 ${APP_DIR}/public/uploads*
+${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/chmod -R 755 ${APP_DIR}/public/uploads*
+${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/docker *
+${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/docker-compose *
+EOF
+
+    # Set proper permissions on sudoers file
+    chmod 0440 /etc/sudoers.d/${APP_USER}-deploy
+
+    # Validate sudoers file
+    if visudo -c -f /etc/sudoers.d/${APP_USER}-deploy &>/dev/null; then
+        log_success "Passwordless sudo configured for deployment"
+    else
+        log_error "Sudoers file validation failed"
+        rm -f /etc/sudoers.d/${APP_USER}-deploy
+        log_warning "Continuing without passwordless sudo (you'll need to enter password during deployment)"
+    fi
+
     # Create SSH directory
     mkdir -p /home/$APP_USER/.ssh
     chmod 700 /home/$APP_USER/.ssh
