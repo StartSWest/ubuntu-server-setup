@@ -123,12 +123,17 @@ create_app_user() {
     # Configure passwordless sudo for deployment commands
     log_info "Configuring passwordless sudo for deployment..."
 
+    # Detect actual command paths
+    CHOWN_PATH=$(which chown || echo "/usr/bin/chown")
+    CHMOD_PATH=$(which chmod || echo "/usr/bin/chmod")
+    DOCKER_PATH=$(which docker || echo "/usr/bin/docker")
+
     cat > /etc/sudoers.d/${APP_USER}-deploy <<EOF
 # Allow ${APP_USER} to run deployment commands without password
-${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/chown -R 1001\:1001 ${APP_DIR}/public/uploads*
-${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/chmod -R 755 ${APP_DIR}/public/uploads*
-${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/docker *
-${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/docker-compose *
+${APP_USER} ALL=(ALL) NOPASSWD: ${CHOWN_PATH}
+${APP_USER} ALL=(ALL) NOPASSWD: ${CHMOD_PATH}
+${APP_USER} ALL=(ALL) NOPASSWD: ${DOCKER_PATH}
+${APP_USER} ALL=(ALL) NOPASSWD: /usr/bin/docker-compose
 EOF
 
     # Set proper permissions on sudoers file
