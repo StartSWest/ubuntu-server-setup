@@ -345,10 +345,10 @@ clone_repository() {
 
     # Check for .env.production.example
     if [[ -f "$APP_DIR/.env.production.example" ]]; then
-        log_info "Creating .env.production from example..."
-        sudo -u "$APP_USER" cp "$APP_DIR/.env.production.example" "$APP_DIR/.env.production"
+        log_info "Creating .env from example..."
+        sudo -u "$APP_USER" cp "$APP_DIR/.env.production.example" "$APP_DIR/.env"
         log_success "Environment file created"
-        log_warning "Remember to edit $APP_DIR/.env.production with your actual values"
+        log_warning "Remember to edit $APP_DIR/.env with your actual values"
     fi
 
     # Make deploy.sh executable if it exists
@@ -380,7 +380,7 @@ show_summary() {
     log_warning "Next Steps:"
     echo ""
     echo "1. Configure environment variables (if not done already):"
-    echo "   sudo -u $APP_USER nano $APP_DIR/.env.production"
+    echo "   sudo -u $APP_USER nano $APP_DIR/.env"
     echo ""
     echo "2. Switch to project user:"
     echo "   sudo -u $APP_USER -i"
