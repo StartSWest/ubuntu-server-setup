@@ -354,9 +354,13 @@ clone_repository() {
     # Make deploy.sh executable if it exists
     if [[ -f "$APP_DIR/scripts/deploy.sh" ]]; then
         chmod +x "$APP_DIR/scripts/deploy.sh"
-        chown $APP_USER:$APP_USER "$APP_DIR/scripts/deploy.sh"
         log_success "Deploy script permissions set"
     fi
+
+    # Ensure all files are owned by the app user (fix any root-owned files)
+    log_info "Setting ownership for all project files..."
+    chown -R $APP_USER:$APP_USER "$APP_DIR"
+    log_success "Project ownership set to $APP_USER"
 }
 
 # Show completion summary
