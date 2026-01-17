@@ -350,6 +350,13 @@ clone_repository() {
         log_success "Environment file created"
         log_warning "Remember to edit $APP_DIR/.env.production with your actual values"
     fi
+
+    # Make deploy.sh executable if it exists
+    if [[ -f "$APP_DIR/scripts/deploy.sh" ]]; then
+        chmod +x "$APP_DIR/scripts/deploy.sh"
+        chown $APP_USER:$APP_USER "$APP_DIR/scripts/deploy.sh"
+        log_success "Deploy script permissions set"
+    fi
 }
 
 # Show completion summary

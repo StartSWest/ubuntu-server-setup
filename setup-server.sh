@@ -328,8 +328,14 @@ setup_root_ssh_keys() {
     fi
 
     # Add the key to authorized_keys
+    log_info "Adding key to /root/.ssh/authorized_keys..."
     echo "$ssh_public_key" >> /root/.ssh/authorized_keys
     log_success "SSH key added to root's authorized_keys"
+
+    # Show what was added
+    echo ""
+    log_info "Key added:"
+    echo "  $ssh_public_key"
 
     echo ""
     log_info "Testing SSH key authentication..."
@@ -419,6 +425,23 @@ EOF
 }
 
 
+
+# Install Node.js and npm
+install_nodejs() {
+    log_info "Installing Node.js LTS..."
+
+    # Install Node.js 20.x LTS using NodeSource
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    apt-get install -y nodejs
+
+    # Verify installation
+    log_success "Node.js $(node --version) installed"
+    log_success "npm $(npm --version) installed"
+
+    # Install pnpm globally (commonly used)
+    npm install -g pnpm
+    log_success "pnpm $(pnpm --version) installed"
+}
 
 # Install and configure Nginx (system-level)
 install_nginx() {
@@ -567,6 +590,7 @@ print_summary() {
     echo "Summary:"
     echo "  ✓ System updated and secured"
     echo "  ✓ Docker installed and configured"
+    echo "  ✓ Node.js, npm, and pnpm installed"
     echo "  ✓ Nginx installed"
     echo "  ✓ Firewall configured (ports 22, 80, 443)"
     echo "  ✓ Fail2ban enabled for intrusion prevention"
@@ -632,6 +656,7 @@ main() {
     configure_auto_updates
     create_swap
     install_docker
+    install_nodejs
     install_nginx
     configure_firewall
     configure_fail2ban
