@@ -357,6 +357,22 @@ clone_repository() {
         log_success "Deploy script permissions set"
     fi
 
+    # Set up git hook to automatically make deploy.sh executable after git pull
+    if [[ -d "$APP_DIR/.git" ]]; then
+        log_info "Setting up git post-merge hook..."
+        mkdir -p "$APP_DIR/.git/hooks"
+        cat > "$APP_DIR/.git/hooks/post-merge" <<'HOOK_EOF'
+#!/bin/bash
+# Auto-set executable permissions after git pull/merge
+if [[ -f scripts/deploy.sh ]]; then
+    chmod +x scripts/deploy.sh
+fi
+HOOK_EOF
+        chmod +x "$APP_DIR/.git/hooks/post-merge"
+        chown $APP_USER:$APP_USER "$APP_DIR/.git/hooks/post-merge"
+        log_success "Git hook installed - deploy.sh will stay executable after git pull"
+    fi
+
     # Ensure all files are owned by the app user (fix any root-owned files)
     log_info "Setting ownership for all project files..."
     chown -R $APP_USER:$APP_USER "$APP_DIR"
