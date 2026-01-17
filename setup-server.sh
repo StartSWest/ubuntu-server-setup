@@ -557,7 +557,7 @@ create_motd() {
 
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║            Production Server - Ready for Deploy          ║
+║            Production Server - Ready for Deploy           ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 
