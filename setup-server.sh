@@ -268,8 +268,8 @@ EOF
 install_nodejs() {
     log_info "Installing Node.js LTS..."
 
-    # Install Node.js 20.x LTS using NodeSource
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    # Install Node.js 22.x LTS using NodeSource
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
     apt-get install -y nodejs
 
     # Verify installation
